@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#fbf8f1">
+  <title>A surprise for Roopa’s 60th</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%23fbf8f1'/%3E%3Ctext x='16' y='22' font-size='18' text-anchor='middle' fill='%23c9a96e'%3E%E2%9D%86%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Subtle frosted snowflakes (decorative only) -->
+  <svg class="frost frost-a" viewBox="0 0 100 100" aria-hidden="true"><use href="#flake"/></svg>
+  <svg class="frost frost-b" viewBox="0 0 100 100" aria-hidden="true"><use href="#flake"/></svg>
+  <svg class="frost frost-c" viewBox="0 0 100 100" aria-hidden="true"><use href="#flake"/></svg>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <g id="flake" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M50 6v88M6 50h88M19 19l62 62M81 19L19 81"/>
+        <path d="M50 18l-8-8M50 18l8-8M50 82l-8 8M50 82l8 8M18 50l-8-8M18 50l-8 8M82 50l8-8M82 50l8 8"/>
+        <path d="M30 30l-11 0M30 30l0-11M70 30l11 0M70 30l0-11M30 70l-11 0M30 70l0 11M70 70l11 0M70 70l0 11"/>
+      </g>
+    </defs>
+  </svg>
+
+  <div class="dim" id="dim" aria-hidden="true"></div>
+
+  <main class="card" id="app">
+
+    <!-- Progress indicator (shown during recording) -->
+    <header class="progress" id="progress" hidden>
+      <span class="dots" id="progress-dots" aria-hidden="true"></span>
+      <span class="step" id="progress-step">Question 1 of 3</span>
+    </header>
+
+    <!-- 1. Intro -->
+    <section class="screen" id="screen-intro">
+      <p class="eyebrow">A surprise for</p>
+      <h1 class="title">Roopa’s <em>60th</em></h1>
+      <div class="rule" aria-hidden="true"></div>
+      <p class="lead" id="intro-greeting">Hi! We’re putting together a surprise video for Roopa’s 60th birthday.</p>
+      <p class="sub" id="intro-sub">We’d love for you to answer 3 quick questions. Each response can be up to 10 seconds.</p>
+      <button class="btn primary" id="btn-start" type="button">Start</button>
+    </section>
+
+    <!-- 1b. Unknown guest: ask for a name -->
+    <section class="screen" id="screen-name">
+      <h2 class="h2">First, who are you?</h2>
+      <p class="sub">So we know who to thank.</p>
+      <form id="name-form" class="form" novalidate>
+        <label class="field">
+          <span>First name</span>
+          <input id="name-first" type="text" autocomplete="given-name" autocapitalize="words" required>
+        </label>
+        <label class="field">
+          <span>Last name</span>
+          <input id="name-last" type="text" autocomplete="family-name" autocapitalize="words">
+        </label>
+        <p class="error" id="name-error" hidden>Please enter your first name.</p>
+        <button class="btn primary" type="submit">Continue</button>
+      </form>
+    </section>
+
+    <!-- 2. Permission explainer -->
+    <section class="screen" id="screen-permission">
+      <h2 class="h2">Camera &amp; microphone</h2>
+      <p class="lead">We’ll use your camera and microphone only to record your birthday message.</p>
+      <p class="sub">Nothing is saved until you tap <strong>Submit</strong>.</p>
+      <button class="btn primary" id="btn-enable" type="button">Enable Camera</button>
+      <p class="error" id="permission-error" hidden></p>
+      <button class="btn ghost" id="btn-use-fallback" type="button" hidden>Use my phone’s camera app instead</button>
+    </section>
+
+    <!-- 3. Record / playback -->
+    <section class="screen" id="screen-record">
+      <h2 class="prompt" id="prompt-text"></h2>
+      <p class="hint" id="record-hint">10 seconds max</p>
+
+      <div class="stage" id="stage">
+        <video id="preview" autoplay muted playsinline></video>
+        <video id="playback" playsinline controls hidden></video>
+        <div class="stage-off" id="stage-off" hidden>Camera preview hidden</div>
+        <div class="countdown" id="countdown" hidden></div>
+        <div class="rec" id="rec-indicator" hidden>
+          <span class="rec-dot"></span><span id="rec-timeleft">10</span>
+        </div>
+        <svg class="ring" id="ring" viewBox="0 0 36 36" hidden><circle cx="18" cy="18" r="16"/><circle id="ring-progress" cx="18" cy="18" r="16"/></svg>
+        <button class="eye" id="btn-toggle-preview" type="button" aria-label="Hide camera preview" title="Hide camera preview">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+        </button>
+      </div>
+
+      <div class="actions" id="actions-idle">
+        <button class="btn primary big" id="btn-record" type="button">Record Answer</button>
+      </div>
+      <div class="actions" id="actions-recording" hidden>
+        <button class="btn stop big" id="btn-stop" type="button">Stop</button>
+      </div>
+      <div class="actions row" id="actions-playback" hidden>
+        <button class="btn ghost" id="btn-retake" type="button">Retake</button>
+        <button class="btn primary" id="btn-use" type="button">Use This</button>
+      </div>
+
+      <div class="fallback" id="fallback" hidden>
+        <p class="sub">Please record a video of about 10 seconds.</p>
+        <label class="btn primary big file-btn">
+          <span id="file-btn-label">Record Answer</span>
+          <input type="file" id="file-input" accept="video/*" capture="user">
+        </label>
+      </div>
+      <p class="error" id="record-error" hidden></p>
+    </section>
+
+    <!-- 4. Review -->
+    <section class="screen" id="screen-review">
+      <h2 class="h2">Your answers</h2>
+      <p class="sub">Have a look, then send them our way.</p>
+      <div class="review-list" id="review-list"></div>
+      <p class="size" id="size-estimate"></p>
+      <button class="btn primary big" id="btn-submit" type="button">Submit My Videos</button>
+    </section>
+
+    <!-- 5. Upload -->
+    <section class="screen" id="screen-upload">
+      <h2 class="h2" id="upload-status">Uploading 1 of 3…</h2>
+      <div class="bar" aria-hidden="true"><div class="bar-fill" id="upload-bar"></div></div>
+      <p class="sub" id="upload-note">Please keep this page open until it finishes.</p>
+      <div id="upload-error" hidden>
+        <p class="error" id="upload-error-text"></p>
+        <button class="btn primary" id="btn-retry-upload" type="button">Retry</button>
+      </div>
+    </section>
+
+    <!-- 6. Done -->
+    <section class="screen" id="screen-done">
+      <p class="eyebrow">Thank you!</p>
+      <h2 class="title small">Your videos were submitted successfully ❤️</h2>
+      <div class="rule" aria-hidden="true"></div>
+      <p class="whisper">Please keep this a surprise for Roopa.</p>
+    </section>
+
+    <!-- Admin: link generator (/?admin=1) -->
+    <section class="screen admin" id="screen-admin">
+      <p class="eyebrow">Roopa 60 · admin</p>
+      <h2 class="h2">Personalised link generator</h2>
+
+      <label class="field">
+        <span>Load from guests.js (optional)</span>
+        <select id="adm-preset"><option value="">— choose a guest —</option></select>
+      </label>
+      <div class="two">
+        <label class="field"><span>First name</span><input id="adm-first" type="text" autocapitalize="words"></label>
+        <label class="field"><span>Last name</span><input id="adm-last" type="text" autocapitalize="words"></label>
+      </div>
+      <label class="field">
+        <span>Relationship</span>
+        <input id="adm-rel" type="text" list="rel-list" placeholder="e.g. Family Friend">
+        <datalist id="rel-list">
+          <option value="Family"><option value="Family Friend"><option value="Friend"><option value="Colleague"><option value="Neighbour">
+        </datalist>
+      </label>
+
+      <fieldset class="prompts" id="adm-prompts">
+        <legend>Choose exactly 3 questions <span class="muted" id="adm-count">(0 of 3)</span></legend>
+      </fieldset>
+
+      <label class="check">
+        <input type="checkbox" id="adm-include-name" checked>
+        <span>Include name in the link, so it works without editing <code>guests.js</code></span>
+      </label>
+
+      <button class="btn primary" id="adm-generate" type="button">Generate link</button>
+      <p class="error" id="adm-error" hidden></p>
+
+      <div id="adm-output" hidden>
+        <label class="field"><span>Link</span><textarea id="adm-link" rows="2" readonly></textarea></label>
+        <div class="row">
+          <button class="btn ghost" id="adm-copy-link" type="button">Copy link</button>
+          <a class="btn ghost" id="adm-open" target="_blank" rel="noopener">Open</a>
+        </div>
+        <label class="field"><span>WhatsApp message</span><textarea id="adm-msg" rows="6" readonly></textarea></label>
+        <button class="btn ghost" id="adm-copy-msg" type="button">Copy Message</button>
+
+        <div class="qr-wrap">
+          <canvas id="adm-qr" width="1" height="1"></canvas>
+          <a class="btn ghost" id="adm-qr-download" download="roopa60-qr.png">Download QR</a>
+        </div>
+
+        <button class="btn primary" id="adm-add" type="button">Add to list</button>
+        <details class="snippet"><summary>guests.js snippet</summary><pre id="adm-snippet"></pre></details>
+      </div>
+
+      <div class="adm-list" id="adm-list-wrap" hidden>
+        <h3>Saved links <span class="muted" id="adm-list-count"></span></h3>
+        <div class="table-wrap"><table id="adm-list"><thead><tr><th>Name</th><th>Relationship</th><th>Q</th><th></th></tr></thead><tbody></tbody></table></div>
+        <div class="row">
+          <button class="btn ghost" id="adm-export" type="button">Export CSV</button>
+          <button class="btn ghost danger" id="adm-clear" type="button">Clear list</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <template id="tpl-review-item">
+    <article class="review-item">
+      <video playsinline controls preload="metadata"></video>
+      <div class="review-meta">
+        <p class="review-q"></p>
+        <p class="review-prompt"></p>
+        <button class="btn ghost small" type="button">Retake</button>
+      </div>
+    </article>
+  </template>
+
+  <script src="prompts.js"></script>
+  <script src="guests.js"></script>
+  <script src="qr.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
